@@ -55,5 +55,115 @@ function renderTable(data) {
 })();
 </script>
 
+<!-- Modal Container -->
+<div class="player-modal" id="modal-MatasVokietaitas" style="display:none;">
+  <div class="modal-content">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 id="modal-name">Player Name</h2>
+      <span id="modal-tier" class="tier-label">Tier • Composite Score</span>
+      <button class="close-modal" onclick="closeModal()">×</button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Snapshot (Always visible) -->
+      <section class="module snapshot">
+        <h3>🧾 Snapshot</h3>
+        <p id="modal-snapshot"></p>
+      </section>
+
+      <!-- Defensive Versatility -->
+      <section class="module defensive free-only">
+        <h3>🛡️ Defensive Versatility</h3>
+        <p id="modal-defensive"></p>
+      </section>
+
+      <!-- Shot Quality -->
+      <section class="module shot-quality pro-only">
+        <h3>🎯 Shot Quality Model</h3>
+        <p id="modal-shotquality"></p>
+      </section>
+
+      <!-- Cognitive Profile -->
+      <section class="module cognitive elite-only">
+        <h3>🧠 Cognitive Profile</h3>
+        <p id="modal-cognitive"></p>
+      </section>
+
+      <!-- Developmental Archetype -->
+      <section class="module archetype elite-only">
+        <h3>🔧 Developmental Archetype</h3>
+        <p id="modal-archetype"></p>
+      </section>
+
+      <!-- Fit Matrix -->
+      <section class="module fit pro-only">
+        <h3>🧩 Fit Matrix</h3>
+        <p id="modal-fit"></p>
+      </section>
+
+      <!-- Possession Tagging -->
+      <section class="module possession elite-only">
+        <h3>🔁 Possession Tagging</h3>
+        <p id="modal-possession"></p>
+      </section>
+
+      <!-- Historical Echoes -->
+      <section class="module echoes elite-only">
+        <h3>🪄 Historical Echoes & Comparison</h3>
+        <p id="modal-echoes"></p>
+      </section>
+
+      <!-- Archetype Drift -->
+      <section class="module drift elite-only">
+        <h3>📈 Archetype Drift</h3>
+        <p id="modal-drift"></p>
+      </section>
+
+      <!-- Spatial IQ -->
+      <section class="module spatial pro-only">
+        <h3>🧭 Spatial IQ & Movement</h3>
+        <p id="modal-spatial"></p>
+      </section>
+
+      <!-- Filtered Metrics -->
+      <section class="module metrics elite-only">
+        <h3>📊 Filtered Metrics & Analytics</h3>
+        <p id="modal-metrics"></p>
+      </section>
+
+      <!-- Diagnostic Overlay -->
+      <section class="module diagnostic elite-only">
+        <h3>🔬 Diagnostic Overlay</h3>
+        <p id="modal-diagnostic"></p>
+      </section>
+
+      <!-- Maturity Index -->
+      <section class="module maturity pro-only">
+        <h3>🧭 Maturity Index & Intangibles</h3>
+        <p id="modal-maturity"></p>
+      </section>
+
+      <!-- Composite Tier Label -->
+      <section class="module label free-only">
+        <h3>🎯 Composite Tier Label & Placement</h3>
+        <p id="modal-label"></p>
+      </section>
+
+      <!-- Audit Notes -->
+      <section class="module audit elite-only">
+        <h3>📝 Audit Notes</h3>
+        <p id="modal-audit"></p>
+      </section>
+
+      <!-- Paperclip Tags -->
+      <section class="module tags free-only">
+        <h3>📎 Paperclip Tags</h3>
+        <p id="modal-tags"></p>
+      </section>
+    </div>
+  </div>
+</div>
 </body>
 </html>
