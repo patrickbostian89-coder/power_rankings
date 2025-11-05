@@ -8,9 +8,32 @@
     h2 { margin-bottom: 12px; }
     .status { margin-bottom: 16px; font-size: 14px; color: #444; }
     .error { color: #b00020; font-weight: bold; }
-    table { border-collapse: collapse; width: 100%; }
+    table { border-collapse: collapse; width: 100%; cursor: pointer; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     th { background: #f0f0f0; }
+
+    /* Modal styling */
+    .player-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border: 2px solid #ccc;
+      max-width: 800px;
+      margin: 40px auto;
+      position: relative;
+    }
+    .close-modal {
+      position: absolute;
+      top: 10px; right: 10px;
+      font-size: 20px;
+      cursor: pointer;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
@@ -19,9 +42,26 @@
 <h2>Power Rankings</h2>
 <div id="status" class="status">Loading…</div>
 
+<!-- Fallback table for testing modal -->
 <table>
-  <thead id="table-head"></thead>
-  <tbody id="table-body"></tbody>
+  <thead>
+    <tr>
+      <th>Rank</th>
+      <th>Name</th>
+      <th>Composite</th>
+      <th>Tier</th>
+      <th>ModalKey</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr onclick="openModal('modal-Dybantsa')">
+      <td>1</td>
+      <td>AJ Dybantsa</td>
+      <td>97.2</td>
+      <td>Platinum</td>
+      <td>modal-Dybantsa</td>
+    </tr>
+  </tbody>
 </table>
 
 <script>
@@ -33,9 +73,23 @@ function renderTable(data) {
   const tbody = document.getElementById("table-body");
 
   thead.innerHTML = "<tr>" + headerRow.map(h => `<th>${h}</th>`).join("") + "</tr>";
-  tbody.innerHTML = dataRows.map(row =>
-    "<tr>" + row.map(cell => `<td>${cell}</td>`).join("") + "</tr>"
-  ).join("");
+  tbody.innerHTML = dataRows.map(row => {
+    const modalKey = row[headerRow.indexOf("ModalKey")];
+    console.log("ModalKey for row:", modalKey);
+    return `<tr onclick="openModal('${modalKey}')">` +
+             row.map(cell => `<td>${cell}</td>`).join("") +
+           `</tr>`;
+  }).join("");
+}
+
+function openModal(modalId) {
+  document.querySelectorAll('.player-modal').forEach(m => m.style.display = 'none');
+  const modal = document.getElementById(modalId);
+  if (modal) modal.style.display = 'block';
+}
+
+function closeModal() {
+  document.querySelectorAll('.player-modal').forEach(m => m.style.display = 'none');
 }
 
 (async function main() {
@@ -55,115 +109,43 @@ function renderTable(data) {
 })();
 </script>
 
-<!-- Modal Container -->
-<div class="player-modal" id="modal-MatasVokietaitas" style="display:none;">
+<!-- Modal: Matas Vokietaitas -->
+<div class="player-modal" id="modal-MatasVokietaitas">
   <div class="modal-content">
-    <!-- Header -->
-    <div class="modal-header">
-      <h2 id="modal-name">Player Name</h2>
-      <span id="modal-tier" class="tier-label">Tier • Composite Score</span>
-      <button class="close-modal" onclick="closeModal()">×</button>
-    </div>
-
-    <!-- Body -->
-    <div class="modal-body">
-      <!-- Snapshot (Always visible) -->
-      <section class="module snapshot">
-        <h3>🧾 Snapshot</h3>
-        <p id="modal-snapshot"></p>
-      </section>
-
-      <!-- Defensive Versatility -->
-      <section class="module defensive free-only">
-        <h3>🛡️ Defensive Versatility</h3>
-        <p id="modal-defensive"></p>
-      </section>
-
-      <!-- Shot Quality -->
-      <section class="module shot-quality pro-only">
-        <h3>🎯 Shot Quality Model</h3>
-        <p id="modal-shotquality"></p>
-      </section>
-
-      <!-- Cognitive Profile -->
-      <section class="module cognitive elite-only">
-        <h3>🧠 Cognitive Profile</h3>
-        <p id="modal-cognitive"></p>
-      </section>
-
-      <!-- Developmental Archetype -->
-      <section class="module archetype elite-only">
-        <h3>🔧 Developmental Archetype</h3>
-        <p id="modal-archetype"></p>
-      </section>
-
-      <!-- Fit Matrix -->
-      <section class="module fit pro-only">
-        <h3>🧩 Fit Matrix</h3>
-        <p id="modal-fit"></p>
-      </section>
-
-      <!-- Possession Tagging -->
-      <section class="module possession elite-only">
-        <h3>🔁 Possession Tagging</h3>
-        <p id="modal-possession"></p>
-      </section>
-
-      <!-- Historical Echoes -->
-      <section class="module echoes elite-only">
-        <h3>🪄 Historical Echoes & Comparison</h3>
-        <p id="modal-echoes"></p>
-      </section>
-
-      <!-- Archetype Drift -->
-      <section class="module drift elite-only">
-        <h3>📈 Archetype Drift</h3>
-        <p id="modal-drift"></p>
-      </section>
-
-      <!-- Spatial IQ -->
-      <section class="module spatial pro-only">
-        <h3>🧭 Spatial IQ & Movement</h3>
-        <p id="modal-spatial"></p>
-      </section>
-
-      <!-- Filtered Metrics -->
-      <section class="module metrics elite-only">
-        <h3>📊 Filtered Metrics & Analytics</h3>
-        <p id="modal-metrics"></p>
-      </section>
-
-      <!-- Diagnostic Overlay -->
-      <section class="module diagnostic elite-only">
-        <h3>🔬 Diagnostic Overlay</h3>
-        <p id="modal-diagnostic"></p>
-      </section>
-
-      <!-- Maturity Index -->
-      <section class="module maturity pro-only">
-        <h3>🧭 Maturity Index & Intangibles</h3>
-        <p id="modal-maturity"></p>
-      </section>
-
-      <!-- Composite Tier Label -->
-      <section class="module label free-only">
-        <h3>🎯 Composite Tier Label & Placement</h3>
-        <p id="modal-label"></p>
-      </section>
-
-      <!-- Audit Notes -->
-      <section class="module audit elite-only">
-        <h3>📝 Audit Notes</h3>
-        <p id="modal-audit"></p>
-      </section>
-
-      <!-- Paperclip Tags -->
-      <section class="module tags free-only">
-        <h3>📎 Paperclip Tags</h3>
-        <p id="modal-tags"></p>
-      </section>
-    </div>
+    <span class="close-modal" onclick="closeModal()">×</span>
+    <h2>Matas Vokietaitas</h2>
+    <p><strong>Tier:</strong> Silver • <strong>Composite Score:</strong> 86.4</p>
+    <section>
+      <h3>🧾 Snapshot</h3>
+      <p>Versatile forward with strong rebounding instincts and developing perimeter game.</p>
+    </section>
+    <section>
+      <h3>🛡️ Defensive Profile</h3>
+      <p>Physical defender, projects as a switchable 3/4 with toughness.</p>
+    </section>
   </div>
 </div>
+
+<!-- Modal: AJ Dybantsa -->
+<div class="player-modal" id="modal-Dybantsa">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal()">×</span>
+    <h2>AJ Dybantsa</h2>
+    <p><strong>Tier:</strong> Platinum • <strong>Composite Score:</strong> 97.2</p>
+    <section>
+      <h3>🧾 Snapshot</h3>
+      <p>Explosive wing scorer with elite shot creation and NBA-ready frame. Consensus #1 prospect.</p>
+    </section>
+    <section>
+      <h3>🛡️ Defensive Profile</h3>
+      <p>Switchable defender with length and anticipation. Still refining off-ball rotations.</p>
+    </section>
+    <section>
+      <h3>🎯 Shot Quality Model</h3>
+      <p>High volume pull-up shooter. Generates efficient looks from midrange and three.</p>
+    </section>
+  </div>
+</div>
+
 </body>
 </html>
