@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Power Rankings</title>
+  <style>
+    body { font-family: sans-serif; margin: 24px; }
+    h2 { margin-bottom: 12px; }
+    .status { margin-bottom: 16px; font-size: 14px; color: #444; }
+    .error { color: #b00020; font-weight: bold; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #f0f0f0; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+
+<h2>Power Rankings</h2>
+<div id="status" class="status">Loading…</div>
+
+<table>
+  <thead id="table-head"></thead>
+  <tbody id="table-body"></tbody>
+</table>
+
+<script>
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpDJeg-LYWFSe_16a_z6qSkOrcu-X9-pN7PxrtUGtST8LdeJof0cDucvNoFtjZPa1eFFZYLZWWiUHV/pub?output=csv";
+
+function renderTable(data) {
+  const [headerRow, ...dataRows] = data;
+  const thead = document.getElementById("table-head");
+  const tbody = document.getElementById("table-body");
+
+  thead.innerHTML = "<tr>" + headerRow.map(h => `<th>${h}</th>`).join("") + "</tr>";
+  tbody.innerHTML = dataRows.map(row =>
+    "<tr>" + row.map(cell => `<td>${cell}</td>`).join("") + "</tr>"
+  ).join("");
+}
+
+(async function main() {
+  const statusEl = document.getElementById("status");
+  try {
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error("Failed to fetch CSV");
+    const csvText = await res.text();
+    const parsed = Papa.parse(csvText.trim(), { skipEmptyLines: true });
+    if (!parsed.data || parsed.data.length < 2) throw new Error("No data found");
+    renderTable(parsed.data);
+    statusEl.textContent = `Loaded ${parsed.data.length - 1} players.`;
+  } catch (err) {
+    console.error(err);
+    statusEl.innerHTML = '<span class="error">Failed to load CSV. Check the link or console for details.</span>';
+  }
+})();
+</script>
+
+</body>
+</html>
