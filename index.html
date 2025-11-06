@@ -1,156 +1,151 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <title>Power Rankings</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    body { font-family: sans-serif; margin: 24px; }
-    h2 { margin-bottom: 12px; }
-    .status { margin-bottom: 16px; font-size: 14px; color: #444; }
-    .error { color: #b00020; font-weight: bold; }
-    table { border-collapse: collapse; width: 100%; cursor: pointer; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background: #f0f0f0; }
-
-    /* Modal styling */
-    .player-modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 1000;
-    }
-    .modal-content {
-      background: #fff;
-      padding: 20px;
-      border: 2px solid #ccc;
-      max-width: 800px;
-      margin: 40px auto;
-      position: relative;
-    }
-    .close-modal {
-      position: absolute;
-      top: 10px; right: 10px;
-      font-size: 20px;
-      cursor: pointer;
-    }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; margin:24px; background:#f9f9f9; color:#111; }
+    h2 { margin:0 0 12px 0; }
+    .status { margin-bottom:16px; font-size:14px; color:#444; }
+    .error { color:#b00020; font-weight:700; }
+    table { border-collapse:collapse; width:100%; background:#fff; box-shadow:0 1px 0 rgba(0,0,0,0.04); cursor:pointer; }
+    th,td { border:1px solid #e3e3e3; padding:8px 10px; text-align:left; font-size:14px; }
+    th { background:#f4f4f6; font-weight:600; }
+    .player-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10000; }
+    .modal-content { background:#fff; padding:18px; border-radius:6px; max-width:920px; margin:40px auto; max-height:82vh; overflow:auto; position:relative; }
+    .close-modal { position:absolute; right:12px; top:8px; cursor:pointer; font-size:20px; }
+    .tier-label { font-weight:700; margin-right:8px; }
+    .tier-section { border-top:1px solid #eee; padding-top:12px; margin-top:12px; }
+    .small { font-size:13px; color:#666; }
+    code { background:#f3f3f3; padding:2px 4px; border-radius:3px; font-family:monospace; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
+  <h2>Power Rankings</h2>
+  <div id="status" class="status">Loading…</div>
 
-<h2>Power Rankings</h2>
-<div id="status" class="status">Loading…</div>
+  <table>
+    <thead id="table-head"></thead>
+    <tbody id="table-body"></tbody>
+  </table>
 
+  <!-- Reusable modal container (single node reused for all players) -->
+  <div class="player-modal" id="player-modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true">
+      <span class="close-modal" onclick="closeModal()">×</span>
+      <div id="modal-inner"></div>
+    </div>
+  </div>
 
-<!-- Main dynamic table from Google Sheet -->
-<table>
-  <thead id="table-head"></thead>
-  <tbody id="table-body"></tbody>
-</table>
+  <script>
+  // ----- CONFIG -----
+  const CSV_URL = "https://corsproxy.io/?https://docs.google.com/spreadsheets/d/e/2PACX-1vQpDJeg-LYWFSe_16a_z6qSkOrcu-X9-pN7PxrtUGtST8LdeJof0cDucvNoFtjZPa1eFFZYLZWWiUHV/pub?gid=1104526516&single=true&output=csv";
+  // ----- END CONFIG -----
 
-<!-- Fallback table for testing modal -->
-<table style="margin-top: 40px;">
-  <thead>
-    <tr>
-      <th>Rank</th>
-      <th>Name</th>
-      <th>Composite</th>
-      <th>Tier</th>
-      <th>ModalKey</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr onclick="openModal('modal-Dybantsa')">
-      <td>1</td>
-      <td>AJ Dybantsa</td>
-      <td>97.2</td>
-      <td>Platinum</td>
-      <td>modal-Dybantsa</td>
-    </tr>
-  </tbody>
-</table>
-<script>
-const CSV_URL = "https://corsproxy.io/?https://docs.google.com/spreadsheets/d/e/2PACX-1vQpDJeg-LYWFSe_16a_z6qSkOrcu-X9-pN7PxrtUGtST8LdeJof0cDucvNoFtjZPa1eFFZYLZWWiUHV/pub?gid=1104526516&single=true&output=csv";
-function renderTable(data) {
-  const [headerRow, ...dataRows] = data;
-  const thead = document.getElementById("table-head");
-  const tbody = document.getElementById("table-body");
-
-  thead.innerHTML = "<tr>" + headerRow.map(h => `<th>${h}</th>`).join("") + "</tr>";
-  tbody.innerHTML = dataRows.map(row => {
-    const modalKey = row[headerRow.indexOf("ModalKey")];
-    console.log("ModalKey for row:", modalKey);
-    return `<tr onclick="openModal('${modalKey}')">` +
-             row.map(cell => `<td>${cell}</td>`).join("") +
-           `</tr>`;
-  }).join("");
-}
-
-function openModal(modalId) {
-  document.querySelectorAll('.player-modal').forEach(m => m.style.display = 'none');
-  const modal = document.getElementById(modalId);
-  if (modal) modal.style.display = 'block';
-}
-
-function closeModal() {
-  document.querySelectorAll('.player-modal').forEach(m => m.style.display = 'none');
-}
-
-(async function main() {
-  const statusEl = document.getElementById("status");
-  try {
-    const res = await fetch(CSV_URL);
-    if (!res.ok) throw new Error("Failed to fetch CSV");
-    const csvText = await res.text();
-    const parsed = Papa.parse(csvText.trim(), { skipEmptyLines: true });
-    if (!parsed.data || parsed.data.length < 2) throw new Error("No data found");
-    renderTable(parsed.data);
-    statusEl.textContent = `Loaded ${parsed.data.length - 1} players.`;
-  } catch (err) {
-    console.error(err);
-    statusEl.innerHTML = '<span class="error">Failed to load CSV. Check the link or console for details.</span>';
+  function createHeaderRow(headers){
+    return "<tr>" + headers.map(h => `<th>${escapeHtml(h)}</th>`).join("") + "</tr>";
   }
-})();
-</script>
 
-<!-- Modal: Matas Vokietaitas -->
-<div class="player-modal" id="modal-MatasVokietaitas">
-  <div class="modal-content">
-    <span class="close-modal" onclick="closeModal()">×</span>
-    <h2>Matas Vokietaitas</h2>
-    <p><strong>Tier:</strong> Silver • <strong>Composite Score:</strong> 86.4</p>
-    <section>
-      <h3>🧾 Snapshot</h3>
-      <p>Versatile forward with strong rebounding instincts and developing perimeter game.</p>
-    </section>
-    <section>
-      <h3>🛡️ Defensive Profile</h3>
-      <p>Physical defender, projects as a switchable 3/4 with toughness.</p>
-    </section>
-  </div>
-</div>
+  function escapeHtml(s){
+    if (s === null || s === undefined) return "";
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
 
-<!-- Modal: AJ Dybantsa -->
-<div class="player-modal" id="modal-Dybantsa">
-  <div class="modal-content">
-    <span class="close-modal" onclick="closeModal()">×</span>
-    <h2>AJ Dybantsa</h2>
-    <p><strong>Tier:</strong> Platinum • <strong>Composite Score:</strong> 97.2</p>
-    <section>
-      <h3>🧾 Snapshot</h3>
-      <p>Explosive wing scorer with elite shot creation and NBA-ready frame. Consensus #1 prospect.</p>
-    </section>
-    <section>
-      <h3>🛡️ Defensive Profile</h3>
-      <p>Switchable defender with length and anticipation. Still refining off-ball rotations.</p>
-    </section>
-    <section>
-      <h3>🎯 Shot Quality Model</h3>
-      <p>High volume pull-up shooter. Generates efficient looks from midrange and three.</p>
-    </section>
-  </div>
-</div>
+  function renderTable(parsed){
+    const data = parsed.data;
+    const headerRow = data[0];
+    const rows = data.slice(1);
+    document.getElementById("table-head").innerHTML = createHeaderRow(headerRow);
+    const idxModalKey = headerRow.indexOf("ModalKey");
+    const idxProfileJSON = headerRow.indexOf("ProfileJSON");
 
+    const tbody = document.getElementById("table-body");
+    tbody.innerHTML = rows.map((r, i) => {
+      const modalKey = idxModalKey >= 0 ? (r[idxModalKey] || "").trim() : "";
+      const cols = r.map(c => `<td>${escapeHtml(c)}</td>`).join("");
+      return `<tr data-index="${i}" data-modal="${escapeHtml(modalKey)}" data-profile='${escapeHtml(r[idxProfileJSON]||"")}' onclick="rowClick(this)">${cols}</tr>`;
+    }).join("");
+  }
+
+  function rowClick(tr){
+    const modalKey = tr.getAttribute("data-modal");
+    const profileJSON = tr.getAttribute("data-profile") || "";
+    if (profileJSON) {
+      try {
+        const parsed = JSON.parse(profileJSON);
+        openModalFromJSON(parsed, modalKey, tr);
+      } catch(e){
+        // if JSON parse fails, open a simple modal with raw text
+        openModalRaw(profileJSON || "No profile JSON present", modalKey);
+      }
+    } else {
+      // fallback: try using a modal element with id equal to modalKey
+      if (modalKey && document.getElementById(modalKey)) {
+        document.getElementById(modalKey).style.display = "block";
+      } else {
+        openModalRaw("No profile available for this player.", modalKey);
+      }
+    }
+  }
+
+  function openModalFromJSON(profile, modalKey, tr){
+    const title = (profile.Snapshot && (profile.Snapshot.Elite || profile.Snapshot.Pro || profile.Snapshot.Free)) || (profile.Title) || "Player Profile";
+    const composite = (profile.PaperclipTags && profile.PaperclipTags.Pro) || "";
+    const tier = (profile.PaperclipTags && profile.PaperclipTags.Pro) ? "" : "";
+
+    let html = `<h2>${escapeHtml(title)}</h2>`;
+    if (profile.PaperclipTags) html += `<p class="small"><strong class="tier-label">Tags</strong>${escapeHtml(JSON.stringify(profile.PaperclipTags))}</p>`;
+
+    const sections = ["Snapshot","DefensiveProfile","CognitiveProfile","FitMatrix","ShotQualityModel","ComparisonRationale","NotesUpdates","AuditNotes"];
+    sections.forEach(sec => {
+      if (profile[sec]) {
+        html += `<div class="tier-section"><h3>${escapeHtml(sec.replace(/([A-Z])/g," $1").trim())}</h3>`;
+        // Profile may have Free/Pro/Elite nested keys
+        const nested = profile[sec];
+        if (typeof nested === "object" && nested !== null && (nested.Free || nested.Pro || nested.Elite)) {
+          if (nested.Free) html += `<p><strong>Free</strong> — ${escapeHtml(nested.Free)}</p>`;
+          if (nested.Pro) html += `<p><strong>Pro</strong> — ${escapeHtml(nested.Pro)}</p>`;
+          if (nested.Elite) html += `<p><strong>Elite</strong> — ${escapeHtml(nested.Elite)}</p>`;
+        } else if (typeof nested === "object") {
+          html += `<pre class="small">${escapeHtml(JSON.stringify(nested, null, 2))}</pre>`;
+        } else {
+          html += `<p>${escapeHtml(nested)}</p>`;
+        }
+        html += `</div>`;
+      }
+    });
+
+    document.getElementById("modal-inner").innerHTML = html;
+    document.getElementById("player-modal").style.display = "block";
+  }
+
+  function openModalRaw(text, modalKey){
+    document.getElementById("modal-inner").innerHTML = `<h2>${escapeHtml(modalKey || "Profile")}</h2><pre class="small">${escapeHtml(text)}</pre>`;
+    document.getElementById("player-modal").style.display = "block";
+  }
+
+  function closeModal(){
+    document.getElementById("player-modal").style.display = "none";
+    document.getElementById("modal-inner").innerHTML = "";
+  }
+
+  (async function main(){
+    const statusEl = document.getElementById("status");
+    try {
+      const res = await fetch(CSV_URL);
+      if (!res.ok) throw new Error("Failed to fetch CSV: " + res.status);
+      const text = await res.text();
+      const parsed = Papa.parse(text.trim(), { skipEmptyLines: true });
+      if (!parsed || !parsed.data || parsed.data.length < 2) throw new Error("CSV parse returned no usable rows");
+      renderTable(parsed);
+      statusEl.textContent = `Loaded ${parsed.data.length - 1} players.`;
+    } catch(err){
+      console.error(err);
+      statusEl.innerHTML = `<span class="error">Failed to load CSV. Check CSV URL, sheet publish, or console for details.</span>`;
+    }
+  })();
+  </script>
 </body>
 </html>
