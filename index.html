@@ -15,10 +15,35 @@
     .player-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10000; }
     .modal-content { background:#fff; padding:18px; border-radius:6px; max-width:920px; margin:40px auto; max-height:82vh; overflow:auto; position:relative; }
     .close-modal { position:absolute; right:12px; top:8px; cursor:pointer; font-size:20px; }
-    .tier-label { font-weight:700; margin-right:8px; }
-    .tier-section { border-top:1px solid #eee; padding-top:12px; margin-top:12px; }
-    .small { font-size:13px; color:#666; }
-    code { background:#f3f3f3; padding:2px 4px; border-radius:3px; font-family:monospace; }
+
+    /* --- NEW STYLING --- */
+    .tier-header {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+    .free-tier { background: #f5f5f5; border-left: 5px solid #2e7d32; }
+    .pro-tier { background: #fffbea; border-left: 5px solid #f9a825; }
+    .elite-tier { background: #f0f4ff; border-left: 5px solid #1565c0; }
+
+    .module-block { margin-bottom: 14px; }
+    .module-label { font-weight: 600; font-size: 14px; text-transform: uppercase; margin-bottom: 4px; color: #555; }
+    .module-body { font-size: 14px; line-height: 1.6; }
+
+    details summary {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #f0f4ff;
+      border-left: 5px solid #1565c0;
+      border-radius: 6px;
+    }
+    details[open] summary::after { content: " ▲"; }
+    details summary::after { content: " ▼"; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
@@ -31,7 +56,7 @@
     <tbody id="table-body"></tbody>
   </table>
 
-  <!-- Reusable modal container (single node reused for all players) -->
+  <!-- Reusable modal container -->
   <div class="player-modal" id="player-modal" aria-hidden="true">
     <div class="modal-content" role="dialog" aria-modal="true">
       <span class="close-modal" onclick="closeModal()">×</span>
@@ -40,9 +65,7 @@
   </div>
 
   <script>
-  // ----- CONFIG -----
   const CSV_URL = "https://corsproxy.io/?https://docs.google.com/spreadsheets/d/e/2PACX-1vQpDJeg-LYWFSe_16a_z6qSkOrcu-X9-pN7PxrtUGtST8LdeJof0cDucvNoFtjZPa1eFFZYLZWWiUHV/pub?gid=1104526516&single=true&output=csv";
-  // ----- END CONFIG -----
 
   function createHeaderRow(headers){
     return "<tr>" + headers.map(h => `<th>${escapeHtml(h)}</th>`).join("") + "</tr>";
@@ -77,11 +100,9 @@
         const parsed = JSON.parse(profileJSON);
         openModalFromJSON(parsed, modalKey, tr);
       } catch(e){
-        // if JSON parse fails, open a simple modal with raw text
         openModalRaw(profileJSON || "No profile JSON present", modalKey);
       }
     } else {
-      // fallback: try using a modal element with id equal to modalKey
       if (modalKey && document.getElementById(modalKey)) {
         document.getElementById(modalKey).style.display = "block";
       } else {
@@ -92,28 +113,38 @@
 
   function openModalFromJSON(profile, modalKey, tr){
     const title = (profile.Snapshot && (profile.Snapshot.Elite || profile.Snapshot.Pro || profile.Snapshot.Free)) || (profile.Title) || "Player Profile";
-    const composite = (profile.PaperclipTags && profile.PaperclipTags.Pro) || "";
-    const tier = (profile.PaperclipTags && profile.PaperclipTags.Pro) ? "" : "";
-
     let html = `<h2>${escapeHtml(title)}</h2>`;
-    if (profile.PaperclipTags) html += `<p class="small"><strong class="tier-label">Tags</strong>${escapeHtml(JSON.stringify(profile.PaperclipTags))}</p>`;
 
     const sections = ["Snapshot","DefensiveProfile","CognitiveProfile","FitMatrix","ShotQualityModel","ComparisonRationale","NotesUpdates","AuditNotes"];
     sections.forEach(sec => {
       if (profile[sec]) {
-        html += `<div class="tier-section"><h3>${escapeHtml(sec.replace(/([A-Z])/g," $1").trim())}</h3>`;
-        // Profile may have Free/Pro/Elite nested keys
         const nested = profile[sec];
         if (typeof nested === "object" && nested !== null && (nested.Free || nested.Pro || nested.Elite)) {
-          if (nested.Free) html += `<p><strong>Free</strong> — ${escapeHtml(nested.Free)}</p>`;
-          if (nested.Pro) html += `<p><strong>Pro</strong> — ${escapeHtml(nested.Pro)}</p>`;
-          if (nested.Elite) html += `<p><strong>Elite</strong> — ${escapeHtml(nested.Elite)}</p>`;
+          if (nested.Free) {
+            html += `
+              <div class="tier-header free-tier">🟢 FreeNote</div>
+              <div class="module-block"><div class="module-body">${escapeHtml(nested.Free)}</div></div>
+            `;
+          }
+          if (nested.Pro) {
+            html += `
+              <div class="tier-header pro-tier">🟡 ProReport</div>
+              <div class="module-block"><div class="module-body">${escapeHtml(nested.Pro)}</div></div>
+            `;
+          }
+          if (nested.Elite) {
+            html += `
+              <details>
+                <summary class="tier-header elite-tier">🔵 EliteReport</summary>
+                <div class="module-block"><div class="module-body">${escapeHtml(nested.Elite)}</div></div>
+              </details>
+            `;
+          }
         } else if (typeof nested === "object") {
           html += `<pre class="small">${escapeHtml(JSON.stringify(nested, null, 2))}</pre>`;
         } else {
           html += `<p>${escapeHtml(nested)}</p>`;
         }
-        html += `</div>`;
       }
     });
 
@@ -131,14 +162,16 @@
     document.getElementById("modal-inner").innerHTML = "";
   }
 
-  (async function main(){
+    (async function main(){
     const statusEl = document.getElementById("status");
     try {
       const res = await fetch(CSV_URL);
       if (!res.ok) throw new Error("Failed to fetch CSV: " + res.status);
       const text = await res.text();
       const parsed = Papa.parse(text.trim(), { skipEmptyLines: true });
-      if (!parsed || !parsed.data || parsed.data.length < 2) throw new Error("CSV parse returned no usable rows");
+      if (!parsed || !parsed.data || parsed.data.length < 2) {
+        throw new Error("CSV parse returned no usable rows");
+      }
       renderTable(parsed);
       statusEl.textContent = `Loaded ${parsed.data.length - 1} players.`;
     } catch(err){
