@@ -162,13 +162,13 @@
     document.getElementById("modal-inner").innerHTML = "";
   }
 
-    (async function main(){
+  (async function main(){
     const statusEl = document.getElementById("status");
     try {
       const res = await fetch(CSV_URL);
       if (!res.ok) throw new Error("Failed to fetch CSV: " + res.status);
       const text = await res.text();
-      const parsed = Papa.parse(text.trim(), { skipEmptyLines: true });
+            const parsed = Papa.parse(text.trim(), { skipEmptyLines: true });
       if (!parsed || !parsed.data || parsed.data.length < 2) {
         throw new Error("CSV parse returned no usable rows");
       }
@@ -182,3 +182,5 @@
   </script>
 </body>
 </html>
+     
+
