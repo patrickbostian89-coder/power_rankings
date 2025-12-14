@@ -226,22 +226,29 @@ function openCard(r){
     modules.appendChild(d);
   });
 
-  if(isPro){
-    ["CognitiveProfile_pro","FitMatrix_pro","DevelopmentalArchetype_pro","RiskProfile_pro"]
-      .forEach(k=>{
-        if(r[k]){
-          const d=document.createElement("div");
-          d.className="module";
-          d.innerHTML=`<h3>${k.replace("_pro","").replace(/([A-Z])/g," $1")}</h3><p>${strip(r[k])}</p>`;
-          modules.appendChild(d);
-        }
-      });
-  } else {
-    const l=document.createElement("div");
-    l.className="lock";
-    l.innerHTML=`🔒 Pro modules reserved for subscribers`;
-    modules.appendChild(l);
-  }
+ if (isPro) {
+  const proModules = [
+    { label: "Cognitive Profile", key: "CognitiveProfile_pro" },
+    { label: "Fit Matrix", key: "FitMatrix_pro" },
+    { label: "Developmental Archetype", key: "DevelopmentalArchetype_pro" },
+    { label: "Risk Profile", key: "RiskProfile_pro" }
+  ];
+
+  proModules.forEach(m => {
+    if (r[m.key]) {
+      const d = document.createElement("div");
+      d.className = "module";
+      d.innerHTML = `<h3>${m.label}</h3><p>${strip(r[m.key])}</p>`;
+      modules.appendChild(d);
+    }
+  });
+} else {
+  const l = document.createElement("div");
+  l.className = "lock";
+  l.innerHTML = `🔒 Pro modules reserved for subscribers`;
+  modules.appendChild(l);
+}
+
 
   overlay.style.display="flex";
 }
