@@ -173,10 +173,18 @@ function badge(t){
   return "";
 }
 
-function strip(s){
-  return (s||"").replace(/^free\s*:\s*/i,"")
-                .replace(/^pro\s*:\s*/i,"").trim();
+function getFreeText(s) {
+  if (!s) return "";
+  const cleaned = s.replace(/^free\s*:\s*/i, "");
+  return cleaned.split(/pro\s*:/i)[0].trim();
 }
+
+function getProText(s) {
+  if (!s) return "";
+  const match = s.match(/pro\s*:\s*([\s\S]*)/i);
+  return match ? match[1].trim() : "";
+}
+
 
 Papa.parse(CSV,{
   download:true,
@@ -212,19 +220,28 @@ function openCard(r){
   cardName.textContent=r.Name;
   modules.innerHTML="";
 
-  const freeMods=[
-    ["Defensive Profile",r.DefensiveProfile_free,r.DefensiveProfile_pro],
-    ["Shot Quality Model",r.ShotQualityModel_free,r.ShotQualityModel_pro],
-    ["Historical Echoes",r.HistoricalEchoes_free,r.HistoricalEchoes_pro]
-  ];
+ const freeMods = [
+  ["Defensive Profile", r.DefensiveProfile_free],
+  ["Shot Quality Model", r.ShotQualityModel_free],
+  ["Historical Echoes", r.HistoricalEchoes_free]
+];
 
-  freeMods.forEach(m=>{
-    const d=document.createElement("div");
-    d.className="module";
-    d.innerHTML=`<h3>${m[0]}</h3><p>${strip(m[1])}</p>`;
-    if(isPro && m[2]) d.innerHTML+=`<p><strong>Pro:</strong><br>${strip(m[2])}</p>`;
-    modules.appendChild(d);
-  });
+freeMods.forEach(m => {
+  const d = document.createElement("div");
+  d.className = "module";
+
+  const freeText = getFreeText(m[1]);
+  const proText  = getProText(m[1]);
+
+  d.innerHTML = `<h3>${m[0]}</h3><p>${freeText || "—"}</p>`;
+
+  if (isPro && proText) {
+    d.innerHTML += `<p style="margin-top:10px"><strong>Pro:</strong><br>${proText}</p>`;
+  }
+
+  modules.appendChild(d);
+});
+
 
  if (isPro) {
   const proModules = [
