@@ -260,11 +260,27 @@ freeMods.forEach(m => {
     }
   });
 } else {
-  const l = document.createElement("div");
-  l.className = "lock";
-  l.innerHTML = `🔒 Pro modules reserved for subscribers`;
-  modules.appendChild(l);
+  const lockNotice = document.createElement("div");
+  lockNotice.className = "lock";
+  lockNotice.innerHTML = `🔒 Pro modules reserved for subscribers`;
+  modules.appendChild(lockNotice);
+
+  const proTeasers = [
+    "Cognitive Profile",
+    "Fit Matrix",
+    "Developmental Archetype",
+    "Risk Profile"
+  ];
+
+  proTeasers.forEach(name => {
+    const d = document.createElement("div");
+    d.className = "module";
+    d.style.opacity = "0.55";
+    d.innerHTML = `<h3>🔒 ${name}</h3>`;
+    modules.appendChild(d);
+  });
 }
+
 
 
   overlay.style.display="flex";
