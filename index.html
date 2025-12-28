@@ -1,186 +1,307 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Power Rankings</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; margin:24px; background:#f9f9f9; color:#111; }
-    h2 { margin:0 0 12px 0; }
-    .status { margin-bottom:16px; font-size:14px; color:#444; }
-    .error { color:#b00020; font-weight:700; }
-    table { border-collapse:collapse; width:100%; background:#fff; box-shadow:0 1px 0 rgba(0,0,0,0.04); cursor:pointer; }
-    th,td { border:1px solid #e3e3e3; padding:8px 10px; text-align:left; font-size:14px; }
-    th { background:#f4f4f6; font-weight:600; }
-    .player-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10000; }
-    .modal-content { background:#fff; padding:18px; border-radius:6px; max-width:920px; margin:40px auto; max-height:82vh; overflow:auto; position:relative; }
-    .close-modal { position:absolute; right:12px; top:8px; cursor:pointer; font-size:20px; }
+<meta charset="utf-8">
 
-    /* --- NEW STYLING --- */
-    .tier-header {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      padding: 8px 12px;
-      border-radius: 6px;
-    }
-    .free-tier { background: #f5f5f5; border-left: 5px solid #2e7d32; }
-    .pro-tier { background: #fffbea; border-left: 5px solid #f9a825; }
-    .elite-tier { background: #f0f4ff; border-left: 5px solid #1565c0; }
+<!-- Memberstack v2 -->
+<script 
+  src="https://static.memberstack.com/scripts/v1/memberstack.js"
+  data-memberstack-id="pk_20a782b658986a6b0c14">
+</script>
 
-    .module-block { margin-bottom: 14px; }
-    .module-label { font-weight: 600; font-size: 14px; text-transform: uppercase; margin-bottom: 4px; color: #555; }
-    .module-body { font-size: 14px; line-height: 1.6; }
+<!-- PapaParse -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-    details summary {
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 16px;
-      margin-top: 12px;
-      padding: 8px 12px;
-      background: #f0f4ff;
-      border-left: 5px solid #1565c0;
-      border-radius: 6px;
-    }
-    details[open] summary::after { content: " ▲"; }
-    details summary::after { content: " ▼"; }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  background-color: #ffffff;
+  color: #111111;
+}
+
+.page-wrapper { max-width: 1100px; margin: 0 auto; }
+.page-title { font-size: 22px; font-weight: 600; margin-bottom: 2px; }
+
+.status-bar { font-size: 14px; color: #666; margin-bottom: 14px; }
+.status-label { font-weight: 600; margin-right: 4px; }
+
+.table-container {
+  border: 1px solid #dedede;
+  border-radius: 4px;
+  background: #fff;
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+thead th {
+  position: sticky;
+  top: 0;
+  padding: 7px 9px;
+  background: #f2f2f2;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+tbody tr { cursor: pointer; }
+tbody tr:nth-child(even) { background: #fafafa; }
+tbody tr:hover { background: #f0f4ff; }
+
+td { padding: 5px 9px; border-bottom: 1px solid #f0f0f0; }
+
+.col-rank { width: 48px; text-align: right; padding-right: 12px; }
+.col-name { width: 220px; }
+.col-age { width: 56px; }
+.col-tier { width: 88px; }
+.col-height { width: 74px; }
+.col-weight { width: 74px; }
+.col-position { width: 76px; }
+
+.tier-pill {
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tier-platinum .tier-pill {
+  background: linear-gradient(#fdfdfd, #d2d2d2);
+  border: 1px solid #c8c8c8;
+}
+
+.tier-gold .tier-pill {
+  background: linear-gradient(#f9e7a5, #c9a54a);
+  border: 1px solid #b8943c;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal,
+.modal * {
+  pointer-events: auto;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 6px;
+  max-width: 720px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  padding: 12px 16px;
+  background: #f7f7f7;
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-name { font-size: 20px; font-weight: 600; }
+.modal-body { padding: 12px 16px; }
+
+.modal-section-header {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 18px;
+  margin-bottom: 6px;
+}
+
+.locked-box {
+  margin-top: 18px;
+  padding: 12px 14px;
+  background: #f5f5f5;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+}
+</style>
 </head>
+
 <body>
-  <h2>Power Rankings</h2>
-  <div id="status" class="status">Loading…</div>
 
-  <table>
-    <thead id="table-head"></thead>
-    <tbody id="table-body"></tbody>
-  </table>
+<div class="page-wrapper">
+  <h1 class="page-title">2026 NBA Prospect Power Rankings</h1>
 
-  <!-- Reusable modal container -->
-  <div class="player-modal" id="player-modal" aria-hidden="true">
-    <div class="modal-content" role="dialog" aria-modal="true">
-      <span class="close-modal" onclick="closeModal()">×</span>
-      <div id="modal-inner"></div>
-    </div>
+  <div class="status-bar">
+    <span class="status-label">Status:</span>
+    <span id="statusText">Free view</span>
   </div>
 
-  <script>
-  const CSV_URL = "https://corsproxy.io/?https://docs.google.com/spreadsheets/d/e/2PACX-1vQpDJeg-LYWFSe_16a_z6qSkOrcu-X9-pN7PxrtUGtST8LdeJof0cDucvNoFtjZPa1eFFZYLZWWiUHV/pub?gid=1104526516&single=true&output=csv";
+  <div style="font-size:12px;color:#999;margin-bottom:6px;">
+    Debug tier: <span id="debugTier">Free</span>
+  </div>
 
-  function createHeaderRow(headers){
-    return "<tr>" + headers.map(h => `<th>${escapeHtml(h)}</th>`).join("") + "</tr>";
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-rank">Rank</th>
+          <th class="col-name">Name</th>
+          <th class="col-age">Age</th>
+          <th class="col-tier">Tier</th>
+          <th class="col-height">Height</th>
+          <th class="col-weight">Weight</th>
+          <th class="col-position">Position</th>
+          <th class="col-team">Team</th>
+        </tr>
+      </thead>
+      <tbody id="rankingsBody"></tbody>
+    </table>
+  </div>
+
+  <div id="notice">Loading live rankings…</div>
+</div>
+
+<div id="playerModalOverlay" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div id="modalName" class="modal-name"></div>
+      <button id="modalCloseBtn">✕</button>
+    </div>
+    <div id="modalContent" class="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const PUBLIC_CSV =
+  "https://raw.githubusercontent.com/patrickbostian89-coder/power_rankings/main/Profiles%20-%20Public%20Rankings%20(3).csv";
+const PROFILES_CSV =
+  "https://raw.githubusercontent.com/patrickbostian89-coder/power_rankings/main/Profiles%20-%20Profiles%20(3).csv";
+
+let detectedTier = "Free";
+const publicByModalKey = {};
+const profileByModalKey = {};
+
+const modalOverlay = document.getElementById("playerModalOverlay");
+const modalCloseBtn = document.getElementById("modalCloseBtn");
+const modalNameEl = document.getElementById("modalName");
+const modalContentEl = document.getElementById("modalContent");
+
+/* ================= MEMBERSTACK (ROBUST LOAD) ================= */
+
+(function waitForMemberstack() {
+  if (!window.MemberStack) {
+    setTimeout(waitForMemberstack, 50);
+    return;
   }
 
-  function escapeHtml(s){
-    if (s === null || s === undefined) return "";
-    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
+  window.MemberStack.onReady.then(async ms => {
+    const member = await ms.getCurrentMember();
+    console.log("👤 Member:", member);
 
-  function renderTable(parsed){
-    const data = parsed.data;
-    const headerRow = data[0];
-    const rows = data.slice(1);
-    document.getElementById("table-head").innerHTML = createHeaderRow(headerRow);
-    const idxModalKey = headerRow.indexOf("ModalKey");
-    const idxProfileJSON = headerRow.indexOf("ProfileJSON");
+    const plans = member?.data?.plans || [];
+    const names = plans.map(p => (p.name || "").toLowerCase());
 
-    const tbody = document.getElementById("table-body");
-    tbody.innerHTML = rows.map((r, i) => {
-      const modalKey = idxModalKey >= 0 ? (r[idxModalKey] || "").trim() : "";
-      const cols = r.map(c => `<td>${escapeHtml(c)}</td>`).join("");
-      return `<tr data-index="${i}" data-modal="${escapeHtml(modalKey)}" data-profile='${escapeHtml(r[idxProfileJSON]||"")}' onclick="rowClick(this)">${cols}</tr>`;
-    }).join("");
-  }
+    detectedTier =
+      names.includes("elite") ? "Elite" :
+      names.includes("pro")   ? "Pro"   :
+      "Free";
 
-  function rowClick(tr){
-    const modalKey = tr.getAttribute("data-modal");
-    const profileJSON = tr.getAttribute("data-profile") || "";
-    if (profileJSON) {
-      try {
-        const parsed = JSON.parse(profileJSON);
-        openModalFromJSON(parsed, modalKey, tr);
-      } catch(e){
-        openModalRaw(profileJSON || "No profile JSON present", modalKey);
-      }
-    } else {
-      if (modalKey && document.getElementById(modalKey)) {
-        document.getElementById(modalKey).style.display = "block";
-      } else {
-        openModalRaw("No profile available for this player.", modalKey);
-      }
-    }
-  }
+    document.getElementById("statusText").textContent =
+      detectedTier + " view";
+    document.getElementById("debugTier").textContent = detectedTier;
+  });
+})();
 
-  function openModalFromJSON(profile, modalKey, tr){
-    const title = (profile.Snapshot && (profile.Snapshot.Elite || profile.Snapshot.Pro || profile.Snapshot.Free)) || (profile.Title) || "Player Profile";
-    let html = `<h2>${escapeHtml(title)}</h2>`;
 
-    const sections = ["Snapshot","DefensiveProfile","CognitiveProfile","FitMatrix","ShotQualityModel","ComparisonRationale","NotesUpdates","AuditNotes"];
-    sections.forEach(sec => {
-      if (profile[sec]) {
-        const nested = profile[sec];
-        if (typeof nested === "object" && nested !== null && (nested.Free || nested.Pro || nested.Elite)) {
-          if (nested.Free) {
-            html += `
-              <div class="tier-header free-tier">🟢 FreeNote</div>
-              <div class="module-block"><div class="module-body">${escapeHtml(nested.Free)}</div></div>
-            `;
-          }
-          if (nested.Pro) {
-            html += `
-              <div class="tier-header pro-tier">🟡 ProReport</div>
-              <div class="module-block"><div class="module-body">${escapeHtml(nested.Pro)}</div></div>
-            `;
-          }
-          if (nested.Elite) {
-            html += `
-              <details>
-                <summary class="tier-header elite-tier">🔵 EliteReport</summary>
-                <div class="module-block"><div class="module-body">${escapeHtml(nested.Elite)}</div></div>
-              </details>
-            `;
-          }
-        } else if (typeof nested === "object") {
-          html += `<pre class="small">${escapeHtml(JSON.stringify(nested, null, 2))}</pre>`;
-        } else {
-          html += `<p>${escapeHtml(nested)}</p>`;
-        }
-      }
+
+/* Table */
+async function loadAndRenderTable() {
+  const [pubText, profText] = await Promise.all([
+    fetch(PUBLIC_CSV).then(r => r.text()),
+    fetch(PROFILES_CSV).then(r => r.text())
+  ]);
+
+  Papa.parse(pubText, {header:true, skipEmptyLines:true}).data
+    .forEach(r => r.ModalKey && (publicByModalKey[r.ModalKey] = r));
+
+  Papa.parse(profText, {header:true, skipEmptyLines:true}).data
+    .forEach(r => r.ModalKey && (profileByModalKey[r.ModalKey] = r));
+
+  rankingsBody.innerHTML = "";
+  Object.values(publicByModalKey).forEach(r => {
+    const tierClass = r.Tier?.toLowerCase()==="platinum" ? "tier-platinum" :
+                      r.Tier?.toLowerCase()==="gold" ? "tier-gold" : "";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.Rank}</td>
+      <td>${r.Name}</td>
+      <td>${r.Age||""}</td>
+      <td class="${tierClass}">${r.Tier?`<span class="tier-pill">${r.Tier}</span>`:""}</td>
+      <td>${r.Height||""}</td>
+      <td>${r.Weight||""}</td>
+      <td>${r.Position||""}</td>
+      <td>${r.Team||""}</td>`;
+    tr.onclick = () => openPlayerModal(r.ModalKey);
+    rankingsBody.appendChild(tr);
+  });
+  notice.textContent = `Showing ${rankingsBody.children.length} prospects.`;
+}
+
+/* Modal */
+function openPlayerModal(modalKey) {
+  const p = publicByModalKey[modalKey] || {};
+  const prof = profileByModalKey[modalKey] || {};
+  modalNameEl.textContent = p.Name || "";
+
+  let html = `
+    <div class="modal-section-header">Snapshot</div>
+    <div>Age: ${p.Age||"—"} | Tier: ${p.Tier||"—"} | Height: ${p.Height||"—"} |
+    Weight: ${p.Weight||"—"} | Pos: ${p.Position||"—"} | Team: ${p.Team||"—"}</div>
+  `;
+
+  ["SpatialIQ","FitMatrix","DefensiveProfile"].forEach(k=>{
+    const txt = prof[k+"_free"]||p[k+"_free"];
+    if(txt) html+=`<div class="modal-section-header">${k}</div><div>${txt}</div>`;
+  });
+
+  const proKeys=["ArchetypeDrift","RiskIndex","MaturityIndex","DiagnosticOverlay","FilteredMetrics","ShotQualityModel","HistoricalEchoes"];
+  if(detectedTier==="Pro"||detectedTier==="Elite"){
+    proKeys.forEach(k=>{
+      const txt = prof[k+"_pro"]||p[k+"_pro"];
+      if(txt) html+=`<div class="modal-section-header">${k}</div><div>${txt}</div>`;
     });
-
-    document.getElementById("modal-inner").innerHTML = html;
-    document.getElementById("player-modal").style.display = "block";
+  } else {
+    html+=`
+      <div class="locked-box">
+        <div class="modal-section-header">Pro Modules</div>
+        <ul>${proKeys.map(k=>`<li>🔒 ${k}</li>`).join("")}</ul>
+        <a href="https://buy.stripe.com/7sY6oH3RvbND5aI2Ba5gc00"
+           target="_blank" rel="noopener"
+           onclick="event.stopPropagation();"
+           style="display:inline-block;margin-top:6px;padding:10px 14px;
+           background:#111;color:#fff;border-radius:6px;text-decoration:none;">
+          Upgrade to Pro
+        </a>
+      </div>`;
   }
 
-  function openModalRaw(text, modalKey){
-    document.getElementById("modal-inner").innerHTML = `<h2>${escapeHtml(modalKey || "Profile")}</h2><pre class="small">${escapeHtml(text)}</pre>`;
-    document.getElementById("player-modal").style.display = "block";
-  }
+  modalContentEl.innerHTML = html;
+  modalOverlay.classList.add("active");
+  modalContentEl.onclick = e => e.stopPropagation();
+  modalNameEl.onclick = e => e.stopPropagation();
+}
 
-  function closeModal(){
-    document.getElementById("player-modal").style.display = "none";
-    document.getElementById("modal-inner").innerHTML = "";
-  }
+modalCloseBtn.onclick = () => modalOverlay.classList.remove("active");
+modalOverlay.onclick = e => e.target === modalOverlay && modalOverlay.classList.remove("active");
 
-  (async function main(){
-    const statusEl = document.getElementById("status");
-    try {
-      const res = await fetch(CSV_URL);
-      if (!res.ok) throw new Error("Failed to fetch CSV: " + res.status);
-      const text = await res.text();
-            const parsed = Papa.parse(text.trim(), { skipEmptyLines: true });
-      if (!parsed || !parsed.data || parsed.data.length < 2) {
-        throw new Error("CSV parse returned no usable rows");
-      }
-      renderTable(parsed);
-      statusEl.textContent = `Loaded ${parsed.data.length - 1} players.`;
-    } catch(err){
-      console.error(err);
-      statusEl.innerHTML = `<span class="error">Failed to load CSV. Check CSV URL, sheet publish, or console for details.</span>`;
-    }
-  })();
-  </script>
+loadAndRenderTable();
+</script>
+
 </body>
 </html>
-     
-
