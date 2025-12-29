@@ -33,12 +33,13 @@
 <h1>Memberstack Test Page</h1>
 <p id="status">Detecting membership…</p>
 
-<button onclick="window.MemberStack.openModal('LOGIN')">
+<button onclick="window.Memberstack.openModal('LOGIN')">
   Log in / Sign up
 </button>
 
 <script>
-window.MemberStack.onReady.then(async (ms) => {
+// ✅ IMPORTANT: Memberstack (lowercase "s")
+window.Memberstack.onReady.then(async (ms) => {
   const member = await ms.getCurrentMember();
   const plans = member?.data?.plans || [];
   const names = plans.map(p => (p.name || '').toLowerCase());
