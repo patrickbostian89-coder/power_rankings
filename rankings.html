@@ -4,16 +4,8 @@
 <meta charset="UTF-8" />
 <title>2026 NBA Prospect Power Rankings</title>
 
-<!-- MemberSpace -->
-<script>
-  var MemberSpace = window.MemberSpace || { subdomain: "draftdetective" };
-  (function (d) {
-    var s = d.createElement("script");
-    s.src = "https://cdn.memberspace.com/scripts/widgets.js";
-    s.async = true;
-    d.head.appendChild(s);
-  })(document);
-</script>
+<!-- ✅ Memberstack v2 -->
+<script data-memberstack-app="app_cmjp8jcbi00i10suu1e3g7i54" src="https://static.memberstack.com/scripts/v2/memberstack.js"></script>
 
 <!-- PapaParse -->
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -158,6 +150,10 @@
 </div>
 
 <script>
+/* ============================
+   CSV + TABLE RENDERING
+============================ */
+
 const CSV =
   "https://raw.githubusercontent.com/patrickbostian89-coder/power_rankings/main/Profiles%20-%20Public%20Rankings%20(3).csv";
 
@@ -184,7 +180,6 @@ function getProText(s) {
   const match = s.match(/pro\s*:\s*([\s\S]*)/i);
   return match ? match[1].trim() : "";
 }
-
 
 Papa.parse(CSV,{
   download:true,
@@ -216,84 +211,92 @@ function render(){
   });
 }
 
+/* ============================
+   MODAL
+============================ */
+
 function openCard(r){
   cardName.textContent=r.Name;
   modules.innerHTML="";
 
- const freeMods = [
-  ["Defensive Profile", r.DefensiveProfile_free],
-  ["Shot Quality Model", r.ShotQualityModel_free],
-  ["Historical Echoes", r.HistoricalEchoes_free]
-];
-
-freeMods.forEach(m => {
-  const d = document.createElement("div");
-  d.className = "module";
-
-  const freeText = getFreeText(m[1]);
-  const proText  = getProText(m[1]);
-
-  d.innerHTML = `<h3>${m[0]}</h3><p>${freeText || "—"}</p>`;
-
-  if (isPro && proText) {
-    d.innerHTML += `<p style="margin-top:10px"><strong>Pro:</strong><br>${proText}</p>`;
-  }
-
-  modules.appendChild(d);
-});
-
-
- if (isPro) {
-  const proModules = [
-    { label: "Cognitive Profile", key: "CognitiveProfile_pro" },
-    { label: "Fit Matrix", key: "FitMatrix_pro" },
-    { label: "Developmental Archetype", key: "DevelopmentalArchetype_pro" },
-    { label: "Risk Profile", key: "RiskProfile_pro" }
+  const freeMods = [
+    ["Defensive Profile", r.DefensiveProfile_free],
+    ["Shot Quality Model", r.ShotQualityModel_free],
+    ["Historical Echoes", r.HistoricalEchoes_free]
   ];
 
-  proModules.forEach(m => {
-    if (r[m.key]) {
-      const d = document.createElement("div");
-      d.className = "module";
-      d.innerHTML = `<h3>${m.label}</h3><p>${strip(r[m.key])}</p>`;
-      modules.appendChild(d);
-    }
-  });
-} else {
-  const lockNotice = document.createElement("div");
-  lockNotice.className = "lock";
-  lockNotice.innerHTML = `🔒 Pro modules reserved for subscribers`;
-  modules.appendChild(lockNotice);
-
-  const proTeasers = [
-    "Cognitive Profile",
-    "Fit Matrix",
-    "Developmental Archetype",
-    "Risk Profile"
-  ];
-
-  proTeasers.forEach(name => {
+  freeMods.forEach(m => {
     const d = document.createElement("div");
     d.className = "module";
-    d.style.opacity = "0.55";
-    d.innerHTML = `<h3>🔒 ${name}</h3>`;
+
+    const freeText = getFreeText(m[1]);
+    const proText  = getProText(m[1]);
+
+    d.innerHTML = `<h3>${m[0]}</h3><p>${freeText || "—"}</p>`;
+
+    if (isPro && proText) {
+      d.innerHTML += `<p style="margin-top:10px"><strong>Pro:</strong><br>${proText}</p>`;
+    }
+
     modules.appendChild(d);
   });
-}
 
+  if (isPro) {
+    const proModules = [
+      { label: "Cognitive Profile", key: "CognitiveProfile_pro" },
+      { label: "Fit Matrix", key: "FitMatrix_pro" },
+      { label: "Developmental Archetype", key: "DevelopmentalArchetype_pro" },
+      { label: "Risk Profile", key: "RiskProfile_pro" }
+    ];
 
+    proModules.forEach(m => {
+      if (r[m.key]) {
+        const d = document.createElement("div");
+        d.className = "module";
+        d.innerHTML = `<h3>${m.label}</h3><p>${r[m.key]}</p>`;
+        modules.appendChild(d);
+      }
+    });
+  } else {
+    const lockNotice = document.createElement("div");
+    lockNotice.className = "lock";
+    lockNotice.innerHTML = `🔒 Pro modules reserved for subscribers`;
+    modules.appendChild(lockNotice);
+
+    const proTeasers = [
+      "Cognitive Profile",
+      "Fit Matrix",
+      "Developmental Archetype",
+      "Risk Profile"
+    ];
+
+    proTeasers.forEach(name => {
+      const d = document.createElement("div");
+      d.className = "module";
+      d.style.opacity = "0.55";
+      d.innerHTML = `<h3>🔒 ${name}</h3>`;
+      modules.appendChild(d);
+    });
+  }
 
   overlay.style.display="flex";
 }
 
-function detectPro(){
-  MemberSpace.getMemberInfo(r=>{
-    isPro = r?.memberInfo?.memberships?.some(m=>m.name==="Pro");
-    status.textContent = isPro ? "Status: ✅ Pro unlocked" : "Status: Free view";
-  });
-}
+/* ============================
+   MEMBERSTACK PRO DETECTION
+============================ */
 
-document.addEventListener("MemberSpaceReady",detectPro);
+window.MemberStack.onReady.then(async ms => {
+  const member = await ms.getCurrentMember();
+  const plans = member?.data?.plans || [];
+  const names = plans.map(p => (p.name || "").toLowerCase());
+
+  isPro = names.includes("pro") || names.includes("elite");
+
+  status.textContent = isPro
+    ? "Status: ✅ Pro unlocked"
+    : "Status: Free view";
+});
 </script>
 
 </body>
