@@ -1,306 +1,52 @@
-<h1 style="color:red;">TEST MARKER</h1>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script data-memberstack-app="app_cmjp8jcbi00i10suu1e3g7i54" src="https://static.memberstack.com/scripts/v2/memberstack.js"></script>
 <meta charset="UTF-8" />
-<title>2026 NBA Prospect Power Rankings</title>
+<title>Memberstack Test</title>
 
-<!-- PapaParse -->
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<!-- Memberstack v2 -->
+<script 
+  data-memberstack-app="app_cmjp8jcbi00i10suu1e3g7i54" 
+  src="https://static.memberstack.com/scripts/v2/memberstack.js">
+</script>
 
 <style>
   body {
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-    margin: 0;
-    padding: 24px;
-    color: #222;
-    background: #fff;
+    font-family: system-ui, sans-serif;
+    padding: 40px;
+    font-size: 20px;
   }
-
-  h2 {
-    margin: 0 0 6px;
-    font-size: 26px;
-  }
-
-  #status {
-    margin-bottom: 14px;
-    font-weight: 700;
-    color: #2b3a93;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 15px;
-  }
-
-  th, td {
-    padding: 9px 12px;
-    border-bottom: 1px solid #eee;
-    text-align: left;
-  }
-
-  th {
-    background: #f5f5f5;
-    font-weight: 800;
-  }
-
-  tr:hover {
-    background: #f9f9ff;
-    cursor: pointer;
-  }
-
-  .badge {
-    padding: 6px 14px;
-    border-radius: 18px;
-    font-weight: 800;
-    font-size: 12px;
-    display: inline-block;
-  }
-
-  .platinum { background: #e6e6e6; }
-  .gold { background: #ffd700; }
-  .silver { background: #c0c0c0; }
-  .bronze { background: #cd7f32; color:#fff; }
-
-  /* Modal */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.65);
-    display: none;
-    justify-content: center;
-    align-items: flex-start;
-    padding-top: 40px;
-    z-index: 9999;
-  }
-
-  .card {
-    background: #fffef8;
-    width: 95%;
-    max-width: 900px;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.35);
-    position: relative;
-  }
-
-  .close {
-    position: absolute;
-    right: 12px;
-    top: 8px;
-    font-size: 22px;
-    cursor: pointer;
-  }
-
-  .module {
-    margin: 12px 0;
-    padding: 10px 12px;
-    border-left: 4px solid #2b3a93;
-    background: #faf7ef;
+  button {
+    padding: 12px 20px;
+    background: #111;
+    color: #fff;
+    border: none;
     border-radius: 6px;
-  }
-
-  .module h3 {
-    margin: 0 0 6px;
-    font-size: 15px;
-    color: #2b3a93;
-  }
-
-  .lock {
-    margin-top: 14px;
-    padding: 10px;
-    border: 1px solid #e4d2a0;
-    background: #fffaf0;
-    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
   }
 </style>
 </head>
 
 <body>
 
-<button onclick="window.MemberStack.openModal('LOGIN')" 
-        style="padding:10px 16px;background:#111;color:#fff;border-radius:6px;border:none;cursor:pointer;margin-bottom:20px;">
+<h1>Memberstack Test Page</h1>
+<p id="status">Detecting membership…</p>
+
+<button onclick="window.MemberStack.openModal('LOGIN')">
   Log in / Sign up
 </button>
 
-<h2>2026 NBA Prospect Power Rankings</h2>
-<div id="status">Detecting membership…</div>
-
-<table id="table">
-  <thead>
-    <tr>
-      <th>Rank</th>
-      <th>Name</th>
-      <th>Age</th>
-      <th>Tier</th>
-      <th>Height</th>
-      <th>Weight</th>
-      <th>Pos</th>
-      <th>Team</th>
-      <th>Wingspan</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-
-<div class="overlay" id="overlay">
-  <div class="card">
-    <div class="close" onclick="overlay.style.display='none'">×</div>
-    <h3 id="cardName"></h3>
-    <div id="modules"></div>
-  </div>
-</div>
-
 <script>
-/* ============================
-   CSV + TABLE RENDERING
-============================ */
-
-const CSV =
-  "https://raw.githubusercontent.com/patrickbostian89-coder/power_rankings/main/Profiles%20-%20Public%20Rankings%20(3).csv";
-
-let rows = [];
-let isPro = false;
-
-function badge(t){
-  t = (t||"").toLowerCase();
-  if(t.includes("platinum")) return "platinum";
-  if(t.includes("gold")) return "gold";
-  if(t.includes("silver")) return "silver";
-  if(t.includes("bronze")) return "bronze";
-  return "";
-}
-
-function getFreeText(s) {
-  if (!s) return "";
-  const cleaned = s.replace(/^free\s*:\s*/i, "");
-  return cleaned.split(/pro\s*:/i)[0].trim();
-}
-
-function getProText(s) {
-  if (!s) return "";
-  const match = s.match(/pro\s*:\s*([\s\S]*)/i);
-  return match ? match[1].trim() : "";
-}
-
-Papa.parse(CSV,{
-  download:true,
-  header:true,
-  complete:r=>{
-    rows=r.data.filter(x=>x.Name);
-    render();
-  }
-});
-
-function render(){
-  const tb=document.querySelector("tbody");
-  tb.innerHTML="";
-  rows.forEach((r,i)=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${r.Rank||i+1}</td>
-      <td><strong>${r.Name}</strong></td>
-      <td>${r.Age||""}</td>
-      <td><span class="badge ${badge(r.Tier)}">${r.Tier||""}</span></td>
-      <td>${r.Height||""}</td>
-      <td>${r.Weight||""}</td>
-      <td>${r.Position||""}</td>
-      <td>${r.Team||""}</td>
-      <td>${r.Wingspan||""}</td>
-    `;
-    tr.onclick=()=>openCard(r);
-    tb.appendChild(tr);
-  });
-}
-
-/* ============================
-   MODAL
-============================ */
-
-function openCard(r){
-  cardName.textContent=r.Name;
-  modules.innerHTML="";
-
-  const freeMods = [
-    ["Defensive Profile", r.DefensiveProfile_free],
-    ["Shot Quality Model", r.ShotQualityModel_free],
-    ["Historical Echoes", r.HistoricalEchoes_free]
-  ];
-
-  freeMods.forEach(m => {
-    const d = document.createElement("div");
-    d.className = "module";
-
-    const freeText = getFreeText(m[1]);
-    const proText  = getProText(m[1]);
-
-    d.innerHTML = `<h3>${m[0]}</h3><p>${freeText || "—"}</p>`;
-
-    if (isPro && proText) {
-      d.innerHTML += `<p style="margin-top:10px"><strong>Pro:</strong><br>${proText}</p>`;
-    }
-
-    modules.appendChild(d);
-  });
-
-  if (isPro) {
-    const proModules = [
-      { label: "Cognitive Profile", key: "CognitiveProfile_pro" },
-      { label: "Fit Matrix", key: "FitMatrix_pro" },
-      { label: "Developmental Archetype", key: "DevelopmentalArchetype_pro" },
-      { label: "Risk Profile", key: "RiskProfile_pro" }
-    ];
-
-    proModules.forEach(m => {
-      if (r[m.key]) {
-        const d = document.createElement("div");
-        d.className = "module";
-        d.innerHTML = `<h3>${m.label}</h3><p>${r[m.key]}</p>`;
-        modules.appendChild(d);
-      }
-    });
-  } else {
-    const lockNotice = document.createElement("div");
-    lockNotice.className = "lock";
-    lockNotice.innerHTML = `🔒 Pro modules reserved for subscribers`;
-    modules.appendChild(lockNotice);
-
-    const proTeasers = [
-      "Cognitive Profile",
-      "Fit Matrix",
-      "Developmental Archetype",
-      "Risk Profile"
-    ];
-
-    proTeasers.forEach(name => {
-      const d = document.createElement("div");
-      d.className = "module";
-      d.style.opacity = "0.55";
-      d.innerHTML = `<h3>🔒 ${name}</h3>`;
-      modules.appendChild(d);
-    });
-  }
-
-  overlay.style.display="flex";
-}
-
-/* ============================
-   MEMBERSTACK PRO DETECTION
-============================ */
-
-window.MemberStack.onReady.then(async ms => {
+window.MemberStack.onReady.then(async (ms) => {
   const member = await ms.getCurrentMember();
   const plans = member?.data?.plans || [];
-  const names = plans.map(p => (p.name || "").toLowerCase());
+  const names = plans.map(p => (p.name || '').toLowerCase());
 
-  isPro = names.includes("pro") || names.includes("elite");
+  const isPro = names.includes("pro") || names.includes("elite");
 
-  status.textContent = isPro
-    ? "Status: ✅ Pro unlocked"
-    : "Status: Free view";
+  document.getElementById("status").textContent =
+    isPro ? "Status: PRO" : "Status: FREE";
 });
 </script>
 
