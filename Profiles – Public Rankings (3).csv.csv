@@ -1,4 +1,4 @@
-Rank,Name,Age,Tier,Height,Weight ,Position,Team,Wingspan,Snapshot_free,,,DefensiveProfile_free,DefensiveProfile_pro,DefensiveProfile_elite,CognitiveProfile_free,CognitiveProfile_pro,CognitiveProfile_elite,FitMatrix_free,FitMatrix_pro,FitMatrix_elite,DevelopmentalArchetype_free,DevelopmentalArchetype_pro,DevelopmentalArchetype_elite,ShotQualityModel_free,ShotQualityModel_pro,ShotQualityModel_elite,HistoricalEchoes_free,HistoricalEchoes_pro,HistoricalEchoes_elite,DevelopmentalArchetype_free,DevelopmentalArchetype_pro,DevelopmentalArchetype_elite,DefensiveProfile_free,DefensiveProfile_pro,DefensiveProfile_elite,FilteredMetrics_free,FilteredMetrics_pro,FilteredMetrics_elite,SpatialIQ_free,SpatialIQ_pro,SpatialIQ_elite,PossessionTagging_free,PossessionTagging_pro,PossessionTagging_elite,ComparisonRationale_free,ComparisonRationale_pro,ComparisonRationale_elite,MaturityIndex_free,MaturityIndex_pro,MaturityIndex_elite,DiagnosticOverlay_free,DiagnosticOverlay_pro,DiagnosticOverlay_elite,RiskProfile_free,RiskProfile_pro,RiskProfile_elite,CompositeMovementLog_free,CompositeMovementLog_pro,CompositeMovementLog_elite,AuditNotes_free,AuditNotes_pro,AuditNotes_elite,NotesUpdates_free,NotesUpdates_pro,NotesUpdates_elite,PaperclipTags_free,PaperclipTags_pro,PaperclipTags_elite,,,,,,,,,,,,,,,,,,TRUE,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,ExpandedReports,ModalKey,ProfileCheck,,,,,checkname,mismatchflag
+Rank,Name,Age,Tier,Height,Weight,Position,Wingspan,Team,ModalKey,Freenote,Pronote,Snapshot,SpatialIQ,FitMatrix,DefensiveProfile,ArchetypeDrift,RiskIndex,CoachabilityIndex,ShotQualityModel,HistoricalEchoes
 1,AJ Dybantsa,17,Platinum,"6'9""",190,SF,BYU,"6'11""","Name: AJ Dybantsa
 Badge Tier: Platinum
 Team: BYU
@@ -13838,7 +13838,8 @@ Echo: Andre Roberson.",Amarion Dickerson,OK
 Badge Tier: Silver
 Team: Arizona
 Height/Weight: 6'3"""", 200 lbs
-Wingspan: 6'6""""""",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,ModalKey-Bradley,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#N/A,,
+Wingspan: 6'6""""
+""",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,ModalKey-Bradley,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#N/A,,
 ,Tamin Lipsey,22,Silver,"6'1""",200,PG,Iowa State,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,ModalKey-Lipsey,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#N/A,,
 58,Braylon Mullins,18,Silver,"6'6""",196,SG/SF,UConn,"6'8""","Name: Braylon Mullins
 Badge Tier: Silver
@@ -28219,4 +28220,5 @@ Echo: Trevor Ariza.",Malique Lewis,OK
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Notes emphasize shooting efficiency but limited NBA traction.,"Tags: Bronze tier, shooter, connector wing.","Paperclip: BYU Cougars, Wasatch Academy UT, Big 12 standout, NBA Draft 2026 projection, automatic eligibility 2027.",[MISSING],[MISSING],[MISSING],[MISSING],[MISSING],[MISSING],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#N/A,#N/A,,,KEY NOT FOUND,MISMATCH
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Notes: South East Melbourne forward; Trinidad & Tobago native; Mexico City Capitanes alum; NBA Draft projection second round to undrafted 2026.,"Notes emphasize length, athleticism, and developmental upside.","Tags: Silver baseline, Bronze risk, stretch forward, connector wing.","Paperclip: South East Melbourne Phoenix, Mexico City Capitanes alum, Trinidad & Tobago, NBA Draft 2026 projection, automatic eligibility 2027.",[MISSING],[MISSING],[MISSING],[MISSING],[MISSING],,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#N/A,#N/A,,,KEY NOT FOUND,MISMATCH
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Composite movement shows upward trajectory,Expanded log shows consistency,Potential elite movement profile,Audit notes: trending upward,Audit notes: needs polish,Audit notes: potential elite,Notes: trending upward in usage,Notes: polish needed,Notes: potential elite,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#N/A,#N/A,,,KEY NOT FOUND,MISMATCH
+
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#N/A,#N/A,,,KEY NOT FOUND,MISMATCH
